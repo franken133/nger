@@ -1,11 +1,32 @@
-## 用angular开发小程序
+<p align="center"><img width="120" src="./logo.png" alt="Vue logo"></p>
+
+<h2 align="center">用ng自由组合开发小程序</h2>
+
+> 项目名称意义，用ng的人！I am a nger! 
+
+<font color="green">Warning!</font> <font color="green">Warning!</font> <font color="green">Warning!</font> 这不仅仅是一个前端项目。
 
 vue、react相继都有了小程序的开发框架，作为一个nger，也该为社区做点事情了!
-很遗憾，由于ng和小程序的差异性，我们暂时没打算直接把ng项目转换成小程序，而是用ng的一套思想（`依赖注入`、`装饰器`等）来规范开发小程序!已达到一套代码多平台运行。
+很遗憾，由于ng和小程序的差异性，我们暂时没打算直接把ng项目转换成小程序，而是用ng的一套思想（`依赖注入`、`装饰器`等）来规范开发小程序!以达到一套代码多平台运行。
 
-## 设计总纲
+技术栈说明：Typeorm/Nestjs/Angular/Ngrx/JSX/Injector(依赖注入)/Decorator(装饰器)/Webpack/Less/Sass/Gulp...
+
+<h2 align="center">系统架构</h2>
+<p align="center"><img style="width:100%;" src="./nger系统概述.png" alt="Vue logo"></p>
+
 > 用装饰器实现应用跨平台，如Controller装饰器，在前端就是发送http请求，在后端就是响应http请求
 > 主要目标nger-compiler根据平台需求,选择性的去除或修改代码,nger-platform-*提供装饰器解析器。
+> 将ng中的ngIf、ngFor通过编译器，拓展到其他运行环境，如小程序等。
+
+<h2 align="center">依赖环境</h2>
+
+1. [安装nodejs](https://nodejs.org/en/download/)
+2. [安装docker](https://www.docker.com/products/docker-desktop)
+3. [安装docker-compose](https://docs.docker.com/compose/install/)
+4. npm install
+5. docker-compose up -d
+6. npm start
+
 ## 目录规范
 - [addons 第三方插件目录](./addon)
 - [attachment 附件目录](./attachment)
@@ -23,6 +44,22 @@ vue、react相继都有了小程序的开发框架，作为一个nger，也该�
   - [package.json 模块信息](./src/package.json)
 - [template 模板打包后存放目录](./template)
 
+## 开发文档
+
+- 核心概念
+  - TypeContext 每个用装饰器装饰过得类都会有一个TypeContext,主要作用是查询装饰器参数。
+  - NgModuleRef @NgModule装饰器装饰的类的运行时实例，每个NgModule在系统运行时创建
+  - ComponentRef @Component装饰的类实例，需要NgModuleRef创建。
+  - PipeRef @Pipe装饰的类实例，需要NgModuleRef创建。
+  - DirectiveRef @Directive装饰的类实例，需要NgModuleRef创建。
+  - PageRef @Page装饰的类实例，需要NgModuleRef创建。
+  - ControllerRef @Controller装饰的类实例，需要NgModuleRef创建。
+- 内置周期钩子
+  - APP_INITIALIZER 系统初始化时运行，依赖注入还没有注册完毕，可在此时动态插入或替换某注入服务。并自动执行NgModule类中的构建方法。Platform需要注入此类型钩子，才能正常运行。
+  - APP_ALLREADY APP_INITIALIZER所有钩子执行完毕后执行。这时依赖注入已准备完毕，所有服务可通过injector的方式获取。这个周期内，不要修改依赖注入服务。
+## 核心思想
+> ng的依赖注入
+
 ## 开发进度
 
 ### [nger-cli](./packages/nger-cli)
@@ -39,7 +76,7 @@ vue、react相继都有了小程序的开发框架，作为一个nger，也该�
   - [ ] android客户端 `yarn cli build android`
 - [ ] 初始化 `yarn cli init demo`
 - [ ] `yarn cli init`初始化
-- [ ] `yarn cli test`单元测试
+- [x] `yarn cli test`单元测试
 - [x] `yarn cli start`启动服务
 - [ ] `yarn cli publish`发布到当前src模块应用商城
 
@@ -130,7 +167,12 @@ vue、react相继都有了小程序的开发框架，作为一个nger，也该�
   - [x] `AfterViewInit`
   - [x] `AfterViewChecked`
 
-### 任务安排
+## 生态
+| 模块及文档连接                                         | 作用       |
+|-------------------------------------------------|----------|
+| [nger-module-gulp](./packages/nger-module-gulp) | gulp打包相关 |
+
+## 任务安排
 > 开发重点 nger-compiler 到 nger-di
 > 目标src目录中的文件，编译到各个平台，并运行。
 
@@ -143,7 +185,19 @@ vue、react相继都有了小程序的开发框架，作为一个nger，也该�
 - [ ] 编译`scss`/`less`/`styl`生成`wxss`文件
 - [ ] 编译生成`js`文件
 
-## Controller
+## TODO
+
+小程序适配思路
+
+其实小程序和ng的适配度还蛮高的！
+- @Component正好和Component对应。不唯一，可以有任意个实例
+- App和NgModule对应。全局唯一
+- @Directive和小程序的指令对应，这里有区别ng中可以自定义指令，小程序不行。不唯一。
+- @Page和小程序的Page对应。全局唯一
+
+
+
+### Controller
 > 客户端运行时需要编译器转码
 ```ts
 import { Controller, Get, Post } from 'nger-core'
@@ -345,3 +399,8 @@ Component({
 
 - [x] Logger 接口
 - [x] `ConsoleLogger` `Logger`的`console`实现
+
+
+## 资助
+
+<p><img width="220" src="./WechatIMG95.jpeg" alt="Vue logo"></p>

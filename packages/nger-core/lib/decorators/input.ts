@@ -1,4 +1,4 @@
-import { makeDecorator, ClassAst, PropertyContext, PropertyAst } from 'ims-decorator';
+import { makeDecorator, PropertyContext, PropertyAst } from 'ims-decorator';
 export const InputMetadataKey = 'InputMetadataKey';
 
 export interface InputOptions {
@@ -8,6 +8,6 @@ export const Input = (bindingPropertyName?: string) => makeDecorator<InputOption
     bindingPropertyName
 });
 export class InputPropertyAst extends PropertyContext<InputOptions> { }
-export function isInputPropertyAst(ast: ClassAst): ast is PropertyAst<InputOptions> {
+export function isInputPropertyAst(ast: PropertyAst): ast is PropertyAst<InputOptions> {
     return ast.metadataKey === InputMetadataKey;
 }

@@ -1,8 +1,8 @@
 import { makeDecorator, ClassContext, ClassAst } from 'ims-decorator';
 export const ComponentMetadataKey = 'ComponentMetadataKey';
 import { DirectiveOptions } from './directive'
-import { Provider, Type, ViewEncapsulation, ChangeDetectionStrategy } from './types'
-
+import { ViewEncapsulation, ChangeDetectionStrategy } from './types'
+import { Provider, Type } from 'nger-di'
 export interface ComponentOptions extends DirectiveOptions {
     changeDetection?: ChangeDetectionStrategy;
     viewProviders?: Provider[];
@@ -22,3 +22,4 @@ export class ComponentClassAst extends ClassContext<ComponentOptions> { }
 export function isComponentClassAst(ast: ClassAst): ast is ClassAst<ComponentOptions> {
     return ast.metadataKey === ComponentMetadataKey;
 }
+export interface Component { }

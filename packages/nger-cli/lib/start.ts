@@ -1,44 +1,53 @@
-import { Command, visitor, Option } from 'nger-core'
-import { ConsoleLogger, LogLevel } from 'nger-logger';
+import { Command, Option, Inject, setPort, setDevMode, Logger } from 'nger-core'
 import { join } from 'path';
 const root = process.cwd();
-import { NgerStart } from './start/public_api'
+import { NgerCliStart } from './start/start';
+import { Injector } from 'nger-di';
+
 @Command({
     name: 'start [type]',
     description: '启动',
     example: {
-        command: 'nger start express|koi',
+        command: 'nger start koi [-p 3000 --dev]',
         description: '启动'
     }
 })
 export class StartCommand {
-    logger: ConsoleLogger = new ConsoleLogger(LogLevel.debug);
+    @Inject() logger: Logger;
     type: 'express' | 'koa' | 'hapi' = 'koa';
+
+    @Inject() start: NgerCliStart;
 
     @Option({
         alias: 'p'
     })
     port: number = 3000;
 
+    @Option()
+    dev: boolean = false;
+
+    constructor(@Inject() public injector: Injector) { }
+
     run() {
-        this.logger.warn(`start ${this.type}`);
-        const start = new NgerStart();
+        setDevMode(!!this.dev);
+        setPort(this.port || 3000)
+        this.logger && this.logger.warn(`start ${this.type}`);
         const source = join(root, 'src/server')
         const serverSource = require(source).default;
-        const app = visitor.visitType(serverSource);
-        app.set('port', this.port);
-        switch (this.type) {
-            case 'express':
-                start.express(app);
-                break;
-            case 'koa':
-                start.koa(app);
-                break;
-            case 'hapi':
-                start.hapi(app);
-                break;
-            default:
-                break;
+        if (serverSource) {
+            switch (this.type) {
+                case 'express':
+                    this.start.express(serverSource);
+                    break;
+                case 'koa':
+                    this.start.koa(serverSource);
+                    break;
+                case 'hapi':
+                    this.start.hapi(serverSource);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

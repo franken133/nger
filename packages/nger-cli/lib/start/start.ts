@@ -1,31 +1,22 @@
-import { TypeContext } from 'ims-decorator';
-import { createServer } from 'http';
-import { ConsoleLogger, LogLevel } from 'nger-logger';
-import Koa from 'koa';
-import hapi from 'hapi';
-import { NgerPlatformExpress } from 'nger-platform-express'
-import { NgerPlatformKoa } from 'nger-platform-koa'
-
-export class NgerStart {
-    logger: ConsoleLogger = new ConsoleLogger(LogLevel.debug);
+import { Logger } from 'nger-logger';
+import ngerPlatformExpress from 'nger-platform-express'
+import ngerPlatformKoa from 'nger-platform-koa'
+import { Injectable, Inject, Type } from 'nger-core';
+@Injectable()
+export class NgerCliStart {
+    @Inject() logger: Logger;
     /** express */
-    express(context: TypeContext) {
-        new NgerPlatformExpress().run(context);
+    express<T>(type: Type<T>) {
+        ngerPlatformExpress().bootstrapModule(type, {})
+        // ngerPlatformExpress.bootstrap([])(type);
     }
     /** koa */
-    koa(context: TypeContext) {
-        new NgerPlatformKoa().run(context);
+    koa<T>(type: Type<T>) {
+        this.logger && this.logger.info(`koa is running`)
+        ngerPlatformKoa().bootstrapModule(type, {})
     }
     /** hapi */
-    async hapi(context: TypeContext) {
-        const hapiServer = new hapi.Server({
-            port: 3000,
-            host: 'localhost'
-        });
-        const server = hapiServer.listener;
-        const port = context.get(`port`);
-        server.listen(port, () => {
-            this.logger.info(`app start at http://localhost:${port}`)
-        });
+    async hapi<T>(type: Type<T>) {
+
     }
 }

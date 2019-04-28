@@ -1,51 +1,29 @@
 import { ConsoleLogger, LogLevel } from 'nger-logger';
-import { TypeContext } from 'ims-decorator';
 import express from 'express';
+import WebpackDevMiddleware from 'webpack-dev-middleware';
 import { createServer } from 'http';
-import { NgModuleMetadataKey, NgModuleClassAst, ControllerMetadataKey, ControllerClassAst, GetMetadataKey, GetMethodAst, PostMetadataKey, PostMethodAst } from 'nger-core';
+import { Logger, createPlatformFactory, Parser, platformCore, getPort } from 'nger-core';
 import { NgerUtil } from 'nger-util';
-export class NgerPlatformExpress {
-    logger: ConsoleLogger;
-    util: NgerUtil;
-    constructor() {
-        this.logger = new ConsoleLogger(LogLevel.debug)
-        this.util = new NgerUtil(this.logger);
-    }
-    async run(context: TypeContext) {
-        const exp = await this.util.loadPkg<typeof express>('express')
-        const app = exp();
-        const server = createServer(app)
-        const port = context.get(`port`);
-        const ngModule = context.getClass(NgModuleMetadataKey) as NgModuleClassAst;
-        ngModule.declarations.map(declaration => {
-            const controller = declaration.getClass(ControllerMetadataKey) as ControllerClassAst;
-            const gets = declaration.getMethod(GetMetadataKey) as GetMethodAst[];
-            const posts = declaration.getMethod(PostMetadataKey) as PostMethodAst[];
-            gets.map(get => {
-                this.logger.debug(`get ${controller.path}/${get.path}`)
-                app.get(`${controller.path}/${get.path}`, async (req, res, next) => {
-                    const data = await declaration.instance[get.ast.propertyKey]();
-                    if (typeof data === 'object') {
-                        res.json(data)
-                    } else {
-                        res.end(data)
-                    }
-                });
-            });
-            posts.map(post => {
-                this.logger.debug(`post ${controller.path}/${post.path}`)
-                app.post(`${controller.path}/${post.path}`, async (req, res, next) => {
-                    const data = await declaration.instance[post.ast.propertyKey]();
-                    if (typeof data === 'object') {
-                        res.json(data)
-                    } else {
-                        res.end(data)
-                    }
-                })
-            });
-        });
-        server.listen(port, () => {
-            this.logger.info(`app start at http://localhost:${port}`)
-        });
+import { Injector, InjectFlags } from 'nger-di';
+import ngerPlatformAxios from 'nger-platform-axios';
+import { TypeContext } from 'ims-decorator'
+export class GetParser extends Parser {
+    // 这里新建instance
+    parse<T>(instance: T, context: TypeContext): T {
+        return instance;
     }
 }
+export default createPlatformFactory(platformCore, 'express', [{
+    provide: Parser,
+    useFactory: async (util: NgerUtil) => {
+        const exp = await util.loadPkg<typeof express>('express')
+        const app = exp();
+        const server = createServer(app)
+        const port = getPort();
+        server.listen(port, () => {
+            console.info(`app start at http://localhost:${port}`)
+        });
+        return new GetParser();
+    },
+    deps: [NgerUtil]
+}]);

@@ -1,10 +1,12 @@
-import { Command } from 'nger-core'
-import { ConsoleLogger, LogLevel } from 'nger-logger';
+import { Command, Inject, Logger } from 'nger-core'
 import { join } from 'path';
-const root = process.cwd();
+
+import mocha, { MochaOptions } from 'mocha';
+const options: MochaOptions = {};
+const _mocha = new mocha(options);
 
 @Command({
-    name: 'test',
+    name: 'test <type>',
     description: '单元测试',
     example: {
         command: 'nger test',
@@ -12,9 +14,13 @@ const root = process.cwd();
     }
 })
 export class TestCommand {
-    logger: ConsoleLogger = new ConsoleLogger(LogLevel.debug);
-
+    @Inject() logger: Logger;
+    type: 'server' | 'app' | 'admin' = 'server'
     run() {
         this.logger.warn(`testing`);
+        _mocha.addFile(join(__dirname, `test/${this.type}.ts`))
+        _mocha.run((failures: number) => {
+            console.log(`TestCommand`, failures)
+        });
     }
 }
